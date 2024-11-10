@@ -180,135 +180,120 @@ def yield_by_month_day(df):
 
     df_pivot=df_pivot.fill_null(0)
     return df_pivot
-def metrics(df):
-    
-    df_is,df_oos=separate_df(df)
+def create_metrics(df,type:str="IS_OOS"):
     statistics=[]
     statistics+=[
             {'statistic':'Nb trades',
-             'IS':df_is.shape[0],
-             'OS':df_oos.shape[0],
-             'IS_OOS':df_is.shape[0]},
+             type:df.shape[0]},
             {'statistic':'Total profit',
-             'IS':f'{df_is['Profit'].sum():.2f}',
-             'OS':f'{df_oos['Profit'].sum():.2f}',
-             'IS_OOS':f'{df['Profit'].sum():.2f}'},
+             type:f'{df['Profit'].sum():.2f}'},
             {'statistic':'Sharpe IS',
-             'IS':f'{calcular_ratio_sharpe(df_is,risk_free=0):.2f}',
-             'OS':f'{calcular_ratio_sharpe(df_oos,risk_free=0):.2f}',
-             'IS_OOS':f'{calcular_ratio_sharpe(df,risk_free=0):.2f}'},
+             type:f'{calcular_ratio_sharpe(df,risk_free=0):.2f}'},
             {'statistic':'PF',
-             'IS':f'{calcular_pf(df_is):.2f}',
-             'OS':f'{calcular_pf(df_oos):.2f}',
-             'IS_OOS':f'{calcular_pf(df):.2f}'},
+             type:f'{calcular_pf(df):.2f}'},
             {'statistic':'Win Rate',
-             'IS':f'{calcular_winrate(df_is)*100:.2f}%',
-             'OS':f'{calcular_winrate(df_oos)*100:.2f}%',
-             'IS_OOS':f'{calcular_winrate(df)*100:.2f}%'},
+             type:f'{calcular_winrate(df)*100:.2f}%'},
             {'statistic':'Drawdown Max PCT',
-             'IS':f'{-df_is['Drawdown_pct'].min()*100:.2f}%',
-             'OS':f'{-df_oos['Drawdown_pct'].min()*100:.2f}%',
-             'IS_OOS':f'{-df['Drawdown_pct'].min()*100:.2f}%'},
+             type:f'{-df['Drawdown_pct'].min()*100:.2f}%'},
             {'statistic':'Drawdown Max',
-             'IS':f'{-df_is['Drawdown'].min():.2f} $',
-             'OS':f'{-df_oos['Drawdown'].min():.2f} $',
-             'IS_OOS':f'{-df['Drawdown'].min():.2f} $'},
+             type:f'{-df['Drawdown'].min():.2f} $'},
             {'statistic':'Return/DD ratio',
-             'IS':f'{calcular_ret_dd(df_is):.2f}',
-             'OS':f'{calcular_ret_dd(df_is):.2f}',
-             'IS_OOS':f'{calcular_ret_dd(df_is):.2f}'},
+             type:f'{calcular_ret_dd(df):.2f}'},
             
             {'statistic':'Daily AVG Profit',
-             'IS':f'{daily_avg_profit(df_is):.2f} $',
-             'OS':f'{daily_avg_profit(df_oos):.2f} $',
-             'IS_OOS':f'{daily_avg_profit(df):.2f} $'},
+             type:f'{daily_avg_profit(df):.2f} $'},
             
             {'statistic':'Monthly AVG Profit',
-             'IS':f'{monthly_avg_profit(df_is):.2f} $',
-             'OS':f'{monthly_avg_profit(df_oos):.2f} $',
-             'IS_OOS':f'{monthly_avg_profit(df):.2f} $'},
+             type:f'{monthly_avg_profit(df):.2f} $'},
             {'statistic':'Year AVG Profit',
-             'IS':f'{year_avg_profit(df_is):.2f} $',
-             'OS':f'{year_avg_profit(df_oos):.2f} $',
-             'IS_OOS':f'{year_avg_profit(df):.2f} $'},
+             type:f'{year_avg_profit(df):.2f} $'},
            
             ]
-
     df_statistics=pl.DataFrame(statistics)
     return df_statistics
-
-def st_metrics(df):
-    
-    df_is,df_oos=separate_df(df)
+def create_st_metrics(df,type="IS_OOS"):
     statistics=[]
     statistics+=[
             {'statistic':'Expentancy',
-             'IS':f'{calc_expectancy(df_is) :.2f} $',
-             'OS':f'{calc_expectancy(df_oos):.2f} $',
-             'IS_OOS':f'{calc_expectancy(df):.2f} $'},
+             type:f'{calc_expectancy(df):.2f} $'},
             {'statistic':'Win Loss Ratio',
-             'IS':f'{calc_win_loss_ratio(df_is):.2f} ',
-             'OS':f'{calc_win_loss_ratio(df_oos):.2f} ',
-             'IS_OOS':f'{calc_win_loss_ratio(df):.2f} '},
-             {'statistic':'Expentancy',
-             'IS':f'{calc_win_loss_ratio(df_is):.2f}',
-             'OS':f'{calc_win_loss_ratio(df_oos):.2f}',
-             'IS_OOS':f'{calc_win_loss_ratio(df):.2f}'},
-             
+             type:f'{calc_win_loss_ratio(df):.2f} '},
             
             ]
 
     df_statistics=pl.DataFrame(statistics)
     return df_statistics
-
-def trades_metrics(df):
-    
-    df_is,df_oos=separate_df(df)
+def create_trade_metrics(df,type="IS_OOS"):
     statistics=[]
     
     statistics+=[
           
             {'statistic':'Gross Profit',
-             'IS':f'{gross_profit(df_is):.2f} $',
-             'OS':f'{gross_profit(df_oos):.2f} $',
-             'IS_OOS':f'{gross_profit(df):.2f} $'},
+             type:f'{gross_profit(df):.2f} $'},
             {'statistic':'Gross Loss',
-             'IS':f'{gross_loss(df_is):.2f} $',
-             'OS':f'{gross_loss(df_oos):.2f} $',
-             'IS_OOS':f'{gross_loss(df):.2f} $'},
+             type:f'{gross_loss(df):.2f} $'},
             {'statistic':'# Win',
-             'IS':f'{win_df(df_is).shape[0]}',
-             'OS':f'{win_df(df_oos).shape[0]}',
-             'IS_OOS':f'{win_df(df).shape[0]}'},
+             type:f'{win_df(df).shape[0]}'},
             {'statistic':'# Loss',
-             'IS':f'{loss_df(df_is).shape[0]}',
-             'OS':f'{loss_df(df_oos).shape[0]}',
-             'IS_OOS':f'{loss_df(df).shape[0]}'},
+             type:f'{loss_df(df).shape[0]}'},
             {'statistic':'Average Win',
-             'IS':f'{win_df(df_is)['Profit'].mean():.2f} $',
-             'OS':f'{win_df(df_oos)['Profit'].mean():.2f} $',
-             'IS_OOS':f'{win_df(df)['Profit'].mean():.2f} $'},
+             type:f'{win_df(df)['Profit'].mean():.2f} $'},
             {'statistic':'Average Loss',
-             'IS':f'{loss_df(df_is)['Profit'].mean():.2f} $',
-             'OS':f'{loss_df(df_oos)['Profit'].mean():.2f} $',
-             'IS_OOS':f'{loss_df(df)['Profit'].mean():.2f} $'},
+             type:f'{loss_df(df)['Profit'].mean():.2f} $'},
              {'statistic':'Largest Win',
-             'IS':f'{win_df(df_is)['Profit'].max():.2f} $',
-             'OS':f'{win_df(df_oos)['Profit'].max():.2f} $',
-             'IS_OOS':f'{win_df(df)['Profit'].max():.2f} $'},
+             type:f'{win_df(df)['Profit'].max():.2f} $'},
             {'statistic':'Largest Loss',
-             'IS':f'{loss_df(df_is)['Profit'].min():.2f} $',
-             'OS':f'{loss_df(df_oos)['Profit'].min():.2f} $',
-             'IS_OOS':f'{loss_df(df)['Profit'].min():.2f} $'},
+             type:f'{loss_df(df)['Profit'].min():.2f} $'},
             {'statistic':'Max consecutive Win',
-             'IS':f'{calc_win_consec(df_is)}',
-             'OS':f'{calc_win_consec(df_oos)} ',
-             'IS_OOS':f'{calc_win_consec(df)} '},
+             type:f'{calc_win_consec(df)} '},
             {'statistic':'Max consecutive Loss',
-             'IS':f'{calc_loss_consec(df_is)} ',
-             'OS':f'{calc_loss_consec(df_oos)} ',
-             'IS_OOS':f'{calc_loss_consec(df)} '},
+             type:f'{calc_loss_consec(df)} '},
             ]
 
     df_statistics=pl.DataFrame(statistics)
+    return df_statistics
+
+def metrics(df):
+    
+    df_is,df_oos=separate_df(df)
+    
+    df1=create_metrics(df,'IS_OOS')
+    print(f"df {df.shape[0]}")
+    print(f"df_is {df_is.shape[0]}")
+    print(f"df_oos {df_oos.shape[0]}")
+
+
+    if df_is.shape[0]>2:
+        df2=create_metrics(df_is,'IS')
+        df1=df1.join(df2,on='statistic')
+    if df_oos.shape[0]>2:
+        df2=create_metrics(df_oos,'OOS')
+        df1=df1.join(df2,on='statistic')
+    df_statistics=df1
+    return df_statistics
+
+def st_metrics(df):
+    
+    df_is,df_oos=separate_df(df)
+    df1=create_st_metrics(df,'IS_OOS')
+    if df_is.shape[0]>2:
+        df2=create_st_metrics(df_is,'IS')
+        df1=df1.join(df2,on='statistic')
+    if df_oos.shape[0]>2:
+        df2=create_st_metrics(df_oos,'OOS')
+        df1=df1.join(df2,on='statistic')
+    df_statistics=df1
+    return df_statistics
+
+def trades_metrics(df):
+    
+    df_is,df_oos=separate_df(df)
+    df1=create_trade_metrics(df,'IS_OOS')
+    if df_is.shape[0]>2:
+        df2=create_trade_metrics(df_is,'IS')
+        df1=df1.join(df2,on='statistic')
+    if df_oos.shape[0]>2:
+        df2=create_trade_metrics(df_oos,'OOS')
+        df1=df1.join(df2,on='statistic')
+    df_statistics=df1
     return df_statistics
