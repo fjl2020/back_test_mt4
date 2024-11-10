@@ -98,9 +98,9 @@ with tab3:
             st.metric(label="p_value",value=f'{p_value:.5f}')
         st.divider() 
         if kstest>0.05:
-            st.html('<h3>Se cumple la himpótesis nula las distribuciones son similares</h3>')
+            st.html('<h3>Se cumple la hipótesis nula las distribuciones son similares</h3>')
         else:
-            st.html('<h3>No Se cumple la himpótesis nula las distribuciones no son similares</h3>')
+            st.html('<h3>No Se cumple la hipótesis nula las distribuciones no son similares</h3>')
         
 
 
