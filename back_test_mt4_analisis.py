@@ -38,7 +38,7 @@ with st.sidebar:
         start_date= st.date_input("Fecha de inicio",value=st.session_state.st_date,disabled=not st.session_state.archivo_cargado)
         
         end_date= st.date_input("Fecha de finalización",value=st.session_state.end_date,disabled=not st.session_state.archivo_cargado)
-        start_date_oos= st.date_input("Fecha de inicio OOS",value=st.session_state.st_date,disabled=not st.session_state.archivo_cargado)
+        start_date_oos= st.date_input("Fecha de inicio OOS",value=st.session_state.end_date,disabled=not st.session_state.archivo_cargado)
         end_date_oos= st.date_input("Fecha de finalización OOS",value=st.session_state.end_date,disabled=not st.session_state.archivo_cargado)
 
         ks_th=st.number_input("KS threshold",ks_threshold,disabled=not st.session_state.archivo_cargado)
