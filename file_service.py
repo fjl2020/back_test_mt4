@@ -45,7 +45,7 @@ def process_file(html_content,
     
     #Calcula el drawdown
     df=df.with_columns(
-    (-pl.col('Balance')-pl.col('Balance').cum_max()).alias('Drawdown')
+    (pl.col('Balance')-pl.col('Balance').cum_max()).alias('Drawdown')
     )
     #Calcula el drawdown pct
     df=df.with_columns(

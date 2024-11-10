@@ -3,24 +3,10 @@ from plotly.subplots import make_subplots
 from plotly.graph_objs import Line,Bar,Scatter,Layout,Figure
 from datetime import datetime as dt
 import  polars as pl
-def fig_main_drawdown(df,
-                      start_date=dt.now(),
-                      end_date=dt.now(),
-                      start_date_oos=dt.now(),
-                      end_date_oos=dt.now(),
-                      symbol='')->Figure:
+def fig_main_drawdown(df,symbol='')->Figure:
 
-    df_start_date= df['OpenTime'][0]
-    df_end_date= df['CloseTime'][-1]
     
     #revisa que las fechas esten dentro de los parametros
-    if (start_date>df_start_date):
-        print('true')
-        df=df.filter((pl.col('OpenTime')>=start_date) )
-    if (end_date<df_end_date):
-        print('true')
-        df=df.filter((pl.col('CloseTime')<=end_date))
-    
     
     #Dibuja la linea retornos
     fig = make_subplots(rows=2, cols=1,shared_xaxes=True,subplot_titles=("Return", "Drawdown"))
@@ -36,7 +22,7 @@ def fig_main_drawdown(df,
     mean_drawdown=0
     max_close = df['Balance'].max()
     min_close = df['Balance'].min()
-    df_tmp =    df.filter((pl.col('OpenTime')>=start_date_oos) & (pl.col('CloseTime')<=end_date_oos))
+    df_tmp =    df.filter((pl.col('Type_sample')=='OOS') )
     figure_0b = Scatter(x=df_tmp['CloseTime'], y = [max_close for _ in range(df_tmp.shape[0]) ],
                                 line = dict(color='rgba(0,0,0,0)'),
                                 fill='tozeroy', 
@@ -65,3 +51,12 @@ def fig_main_drawdown(df,
     fig.add_trace(figure2, row=2, col=1)
     fig.update_layout(height=800,title=f"{symbol}")
     return fig
+
+def dist_returns(df)->Figure:
+    fig = px.histogram(df, x="Profit",color='Type_sample',
+                       marginal="box", # or violin, rug
+                       labels={'Profit':"Profits", 'count':'Frec','Type_sample':"Tipo"})
+    fig.update_yaxes(title={'text':'Frec'})
+
+    return fig
+    

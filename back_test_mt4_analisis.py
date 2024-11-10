@@ -5,6 +5,7 @@ import polars as pl
 from bs4 import BeautifulSoup
 import file_service as fscv
 import visualization as vs
+import metrics
 
 st.set_page_config(layout="wide")
 
@@ -43,7 +44,9 @@ with st.sidebar:
         ks_th=st.number_input("KS threshold",ks_threshold,disabled=not st.session_state.archivo_cargado)
         submitted = st.button('Submit',disabled=not st.session_state.archivo_cargado)
     
-
+        if submitted:
+            operations_df=operations_df.with_columns(pl.when((pl.col('OpenTime')>=start_date_oos) & (pl.col('OpenTime')<=end_date_oos))
+                    .then(pl.lit("OOS")).otherwise(pl.lit("IS")).alias("Type_sample"))
             
         
         
@@ -52,25 +55,55 @@ tab1, tab2, tab3 = st.tabs(["Datos", "Métricas", "Distribución de retornos"])
 with tab1:
     st.header('Datos')
     if submitted and  operations_df is not None and operations_df.shape[0]>1:
-            operations_df=operations_df.with_columns(pl.when((pl.col('OpenTime')>=start_date_oos) & (pl.col('OpenTime')<=end_date_oos))
-                    .then(pl.lit("OS")).otherwise(pl.lit("IS")).alias("Type_sample"))
             
             st.dataframe(operations_df)
-            fig = vs.fig_main_drawdown(operations_df,
-                                 date_to_datetime(start_date),
-                                 date_to_datetime(end_date),
-                                 date_to_datetime(start_date_oos),
-                                 date_to_datetime(end_date_oos))
+            fig = vs.fig_main_drawdown(operations_df) 
+            
             st.plotly_chart(fig)
 
             
 with tab2:
     st.header('Métricas')
     if submitted and operations_df is not None and operations_df.shape[0]>1:
-            st.write(operations_df)
+            st.subheader("General")
+            st.dataframe(metrics.metrics(operations_df))
+            st.subheader("Strategy")
+            st.dataframe(metrics.st_metrics(operations_df))
+            st.subheader("Trades")
+            st.dataframe(metrics.trades_metrics(operations_df))
+            st.subheader("Returns years by month")
+            st.dataframe(metrics.yield_by_month_day(operations_df))
+
     
 with tab3:
     st.header('Distribución de retornos')
+    if submitted and operations_df is not None and operations_df.shape[0]>1:
+        fig = vs.dist_returns(operations_df)
+        st.plotly_chart(fig)
+        col1,col2,col3,col4 = st.columns(4)
+        is_sample,oos_sample=metrics.nb_samples(operations_df)
+        kstest,p_value = metrics.ks_test(operations_df,ks_threshold)
+        with col1:
+            
+            st.metric(label="samples IS",value=is_sample)
+        
+        with col2:
+            st.metric(label="samples OOS",value=oos_sample)
+        
+        with col3:
+            
+            st.metric(label="K statistic",value=f'{kstest:.4f}')
+           
+        with col4:
+            st.metric(label="p_value",value=f'{p_value:.5f}')
+        st.divider() 
+        if kstest>0.05:
+            st.html('<h3>Se cumple la himpótesis nula las distribuciones son similares</h3>')
+        else:
+            st.html('<h3>No Se cumple la himpótesis nula las distribuciones no son similares</h3>')
+        
+
+
         
 
             
