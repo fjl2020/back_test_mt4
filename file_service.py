@@ -52,8 +52,7 @@ def process_file(html_content,
     ((pl.col('Balance')/pl.col('Balance').cum_max())-1).alias('Drawdown_pct')
     )
 
-    df=df.with_columns(pl.when((pl.col('OpenTime')>=start_date_oos) & (pl.col('OpenTime')<=end_date_oos))
-                    .then(pl.lit("OS")).otherwise(pl.lit("IS")).alias("Type_sample"))
+   
     return df
 
 
