@@ -50,7 +50,7 @@ with st.sidebar:
             
         
         
-tab1, tab2, tab3 = st.tabs(["Datos", "Métricas", "Distribución de retornos"])
+tab1, tab2, tab3,tab4 = st.tabs(["Datos", "Métricas", "Distribución de retornos","Distribución temporal"])
             
 with tab1:
     st.header('Datos')
@@ -102,8 +102,17 @@ with tab3:
         else:
             st.html('<h3>No Se cumple la hipótesis nula las distribuciones no son similares</h3>')
         
+with tab4:
+    st.header('Distribución termporales')
+    st.dataframe(vs.weekday_mean_profit(operations_df))
 
 
-        
+
+    fig= vs.fig_profit_weekday(operations_df)
+    st.plotly_chart(fig)
+    fig= vs.fig_profit_month(operations_df)
+    st.plotly_chart(fig)
+    fig= vs.fig_profit_day(operations_df)
+    st.plotly_chart(fig)
 
             

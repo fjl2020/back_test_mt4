@@ -3,6 +3,105 @@ from plotly.subplots import make_subplots
 from plotly.graph_objs import Line,Bar,Scatter,Layout,Figure
 from datetime import datetime as dt
 import  polars as pl
+
+def weekday_mean_profit(df,name_short=False,type_sample="IS"):
+    DAYS_FULL=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    DAYS_SHORT=['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    all_weekdays = pl.DataFrame({
+        'weekday': pl.Series(range(1, 8), dtype=pl.Int8)  # 0 a 6 para todos los días
+        })
+    # Tu código original para procesar el DataFrame
+    # if type_sample== 'IS':
+        
+    #     df_season = df.filter(pl.col('Type_sample')=='IS').with_columns(
+    #         pl.col('CloseTime').dt.weekday().alias('weekday')
+    #         )
+    # elif type_sample== 'OOS':
+        
+    #     df_season = df.filter(pl.col('Type_sample')=='OOS').with_columns(
+    #         pl.col('CloseTime').dt.weekday().alias('weekday')
+    #         )
+    # else: 
+    df_season = df.with_columns(
+        pl.col('CloseTime').dt.weekday().alias('weekday')
+         )
+
+    # Agrupación con promedio de Profit
+    df_wd_prof = df_season.group_by('weekday','Type_sample').agg(pl.col('Profit').mean())
+    if name_short:
+        DAYS_NAME= DAYS_FULL
+    else:
+        DAYS_NAME= DAYS_SHORT
+    # Unimos con todos los días y rellenamos los valores faltantes con 0 (o None si prefieres)
+    df_wd_prof_complete = (
+        all_weekdays
+        .join(df_wd_prof, on='weekday', how='left')
+        .with_columns(
+            pl.col('Profit').fill_null(0),  # Puedes cambiar 0 por None si prefieres
+            pl.col('weekday').replace_strict(
+                {i: day for i, day in enumerate(DAYS_NAME,start=1)},
+                default="unknown"
+                ).alias('weekday_name')
+            )
+        .sort('weekday')
+    )
+    return df_wd_prof_complete
+
+def month_mean_profit(df,name_short=False):
+    MONTH_FULL= ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    MONTH_SHORT= ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    all_weekdays = pl.DataFrame({
+        'month': pl.Series(range(1, 13), dtype=pl.Int8)  # 0 a 6 para todos los días
+        })
+    # Tu código original para procesar el DataFrame
+    
+    df_season = df.with_columns(
+            pl.col('CloseTime').dt.month().alias('month')
+            )
+    # Agrupación con promedio de Profit
+    df_wd_prof = df_season.group_by('month','Type_sample').agg(pl.col('Profit').mean())
+    # Unimos con todos los días y rellenamos los valores faltantes con 0 (o None si prefieres)
+    if name_short:
+        MONTH_NAME= MONTH_FULL
+    else:
+        MONTH_NAME= MONTH_SHORT
+    df_wd_prof_complete = (
+        all_weekdays
+        .join(df_wd_prof, on='month', how='left')
+        .with_columns(
+            pl.col('Profit').fill_null(0),  # Puedes cambiar 0 por None si prefieres
+            pl.col('month').replace_strict(
+                {i: day for i, day in enumerate(MONTH_NAME,start=1)},
+                default="unknown"
+            ).alias('month_name')
+        )
+        .sort('month')
+    )
+
+    return df_wd_prof_complete
+def monthday_mean_profit(df):
+
+    df_season = df.with_columns(
+                    pl.col('CloseTime').dt.day().alias('day'),
+                    )
+    
+  
+    # df_season.head()
+
+    #Agrupo los profit por día de semana
+    
+    
+    df_wd_prof = df_season.group_by('day','Type_sample').agg(pl.col('Profit').mean())
+    #fabrico DF para los días faltantes
+    # df_wd_tmp =pl.DataFrame({'day':[i+1 for i in range(12)],'Profit':[0.0 for i in range(12)]})
+    # cast al formato esperado
+    # df_wd_tmp=df_wd_tmp.cast({'day':pl.Int8})
+    #uno y obtengo el dia de la semana vs media de profits y ordenado
+
+    # df_wd_prof=df_wd_prof.merge_sorted(df_wd_tmp,key="day").group_by('day').agg(pl.col('Profit').sum()).sort('day')
+    return df_wd_prof
+
+
 def fig_main_drawdown(df,symbol='')->Figure:
 
     
@@ -59,4 +158,34 @@ def dist_returns(df)->Figure:
     fig.update_yaxes(title={'text':'Frec'})
 
     return fig
+
+def fig_profit_weekday(df)->Figure:
+    df=weekday_mean_profit(df)
+    fig = px.bar(df, x="weekday_name",y='Profit',color='Type_sample', barmode='group'
+            ,labels={'weekday_name':"Week day", 'count':'Frec','Type_sample':"IS/OS"}
+            )
     
+    fig.update_yaxes(title={'text':'Frec'})
+   
+    return fig
+
+def fig_profit_month(df)->Figure:
+    df=month_mean_profit(df)
+    fig = px.bar(df, x="month_name",y='Profit',color='Type_sample', barmode='group'
+                 ,labels={'month_name ':"Week day", 'count':'Frec','Type_sample':"IS/OS"}
+                   )
+    
+    fig.update_yaxes(title={'text':'Frec'})
+   
+    return fig
+    
+def fig_profit_day(df)->Figure:
+    df=monthday_mean_profit(df)
+    
+    fig = px.bar(df, x="day",y='Profit',color='Type_sample', barmode='group'
+            ,labels={'weekday_name':"Week day", 'count':'Frec','Type_sample':"IS/OS"}
+            )
+    
+    fig.update_yaxes(title={'text':'Frec'})
+   
+    return fig
