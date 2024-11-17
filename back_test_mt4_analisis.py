@@ -104,7 +104,7 @@ with tab3:
         
 with tab4:
     st.header('Distribución termporales')
-    st.dataframe(vs.weekday_mean_profit(operations_df))
+    # st.dataframe(vs.weekday_mean_profit(operations_df))
 
 
 
