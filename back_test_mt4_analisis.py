@@ -105,14 +105,14 @@ with tab3:
 with tab4:
     st.header('Distribución termporales')
     # st.dataframe(vs.weekday_mean_profit(operations_df))
+    if submitted and  operations_df is not None and operations_df.shape[0]>1
 
 
-
-    fig= vs.fig_profit_weekday(operations_df)
-    st.plotly_chart(fig)
-    fig= vs.fig_profit_month(operations_df)
-    st.plotly_chart(fig)
-    fig= vs.fig_profit_day(operations_df)
-    st.plotly_chart(fig)
+        fig= vs.fig_profit_weekday(operations_df)
+        st.plotly_chart(fig)
+        fig= vs.fig_profit_month(operations_df)
+        st.plotly_chart(fig)
+        fig= vs.fig_profit_day(operations_df)
+        st.plotly_chart(fig)
 
             
