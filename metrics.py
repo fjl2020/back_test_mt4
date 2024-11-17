@@ -10,7 +10,7 @@ def separate_df(df):
     oos_data = df.filter(pl.col('Type_sample')=='OOS')
     return is_data, oos_data
 
-def ks_test(df,threshold):
+def ks_test(df):
     # Filtrar periodos IS y OS 
     is_data,oos_data = separate_df(df)
     is_data = is_data ['Profit']
@@ -258,9 +258,9 @@ def metrics(df):
     df_is,df_oos=separate_df(df)
     
     df1=create_metrics(df,'IS_OOS')
-    print(f"df {df.shape[0]}")
-    print(f"df_is {df_is.shape[0]}")
-    print(f"df_oos {df_oos.shape[0]}")
+    # print(f"df {df.shape[0]}")
+    # print(f"df_is {df_is.shape[0]}")
+    # print(f"df_oos {df_oos.shape[0]}")
 
 
     if df_is.shape[0]>2:

@@ -33,7 +33,6 @@ with st.sidebar:
             st.session_state.end_date=operations_df['CloseTime'].max()
             
             
-        ks_threshold = 0.2  # Define el umbral para sobreoptimización (20%)
 
         start_date= st.date_input("Fecha de inicio",value=st.session_state.st_date,disabled=not st.session_state.archivo_cargado)
         
@@ -41,7 +40,6 @@ with st.sidebar:
         start_date_oos= st.date_input("Fecha de inicio OOS",value=st.session_state.end_date,disabled=not st.session_state.archivo_cargado)
         end_date_oos= st.date_input("Fecha de finalización OOS",value=st.session_state.end_date,disabled=not st.session_state.archivo_cargado)
 
-        ks_th=st.number_input("KS threshold",ks_threshold,disabled=not st.session_state.archivo_cargado)
         submitted = st.button('Submit',disabled=not st.session_state.archivo_cargado)
     
         if submitted:
@@ -82,7 +80,8 @@ with tab3:
         st.plotly_chart(fig)
         col1,col2,col3,col4 = st.columns(4)
         is_sample,oos_sample=metrics.nb_samples(operations_df)
-        kstest,p_value = metrics.ks_test(operations_df,ks_threshold)
+        alpha = 0.05
+        kstest,p_value = metrics.ks_test(operations_df)
         with col1:
             
             st.metric(label="samples IS",value=is_sample)
@@ -97,10 +96,10 @@ with tab3:
         with col4:
             st.metric(label="p_value",value=f'{p_value:.5f}')
         st.divider() 
-        if kstest>0.05:
-            st.html('<h3>Se cumple la hipótesis nula las distribuciones son similares</h3>')
+        if p_value<alpha:
+            st.html('<h3>No se cumple la hipótesis nula, las distribuciones de datos no son similares</h3>')
         else:
-            st.html('<h3>No Se cumple la hipótesis nula las distribuciones no son similares</h3>')
+            st.html('<h3>Se cumple la hipótesis nula, las distribuciones de datos son similares</h3>')
         
 with tab4:
     st.header('Distribución termporales')

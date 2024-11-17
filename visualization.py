@@ -153,7 +153,7 @@ def fig_main_drawdown(df,symbol='')->Figure:
 
 def dist_returns(df)->Figure:
     fig = px.histogram(df, x="Profit",color='Type_sample',
-                       marginal="box", # or violin, rug
+                       marginal="box",# or violin, rug
                        labels={'Profit':"Profits", 'count':'Frec','Type_sample':"Tipo"})
     fig.update_yaxes(title={'text':'Frec'})
 
